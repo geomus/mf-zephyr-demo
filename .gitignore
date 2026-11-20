@@ -1,0 +1,22 @@
+node_modules/
+dist/
+.output/
+.astro/
+.next/
+.wrangler/
+coverage/
+playwright-report/
+test-results/
+*.log
+.DS_Store
+
+# Secrets
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+
+# Claude Code local state
+.claude/settings.local.json
+.claude/worktrees/

@@ -1,0 +1,7 @@
+# pnpm settings live here even in single-package repos.
+# Supply-chain defaults: pnpm already blocks dependency build scripts (strictDepBuilds) and waits 1 day for new versions.
+# We raise the age gate to 3 days. Allow a build script only after reading what it runs.
+minimumReleaseAge: 4320
+allowBuilds: {}
+#  esbuild: true
+#  sharp: true

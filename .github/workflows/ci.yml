@@ -1,0 +1,50 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# shortcut: actions pinned to major tags, pin to full commit SHAs before production use.
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        task: [lint, typecheck, test, build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          filter: blob:none
+      - uses: jdx/mise-action@v3
+      - name: Locate pnpm store
+        id: pnpm-store
+        run: echo "dir=$(pnpm store path)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-store.outputs.dir }}
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: pnpm-${{ runner.os }}-
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Lint
+        if: matrix.task == 'lint'
+        run: pnpm exec biome ci .
+      - name: Typecheck
+        if: matrix.task == 'typecheck'
+        run: pnpm typecheck
+      - name: Test
+        if: matrix.task == 'test'
+        run: pnpm test
+      - name: Build
+        if: matrix.task == 'build'
+        run: pnpm build

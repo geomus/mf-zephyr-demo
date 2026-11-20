@@ -1,0 +1,34 @@
+{
+  "sandbox": {
+    "filesystem": {
+      "denyRead": [
+        "~/",
+        ".env",
+        ".env.local",
+        ".env.development",
+        ".env.production",
+        ".env.test",
+        ".dev.vars"
+      ],
+      "allowRead": [
+        ".",
+        "~/.local/share/mise",
+        "~/.cache",
+        "~/Library/pnpm",
+        "~/Library/Caches/pnpm",
+        "~/.gitconfig",
+        "~/.config/git"
+      ],
+      "allowWrite": ["~/.cache", "~/Library/pnpm", "~/Library/Caches/pnpm"],
+      "denyWrite": [
+        ".git/config",
+        ".git/hooks",
+        ".githooks",
+        ".claude/hooks",
+        ".claude/agents",
+        ".claude/settings.json",
+        ".mcp.json"
+      ]
+    }
+  }
+}

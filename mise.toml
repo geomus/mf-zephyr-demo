@@ -1,0 +1,5 @@
+# Pinned toolchain for this repo. `mise install` reads it; CI uses the same versions.
+# Node 26 LTS by default. Projects deployed to AWS Lambda use "24" until the nodejs26.x runtime is GA.
+[tools]
+node = "26"
+pnpm = "11"
