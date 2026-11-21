@@ -1,23 +1,23 @@
 {
-  "name": "project-name",
+  "name": "mf-zephyr-demo",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@11.28.9",
+  "packageManager": "pnpm@11.28.13",
   "engines": {
     "node": ">=26"
   },
   "scripts": {
-    "dev": "echo \"set by the variant\" && exit 1",
-    "build": "echo \"set by the variant\" && exit 1",
+    "dev": "pnpm --parallel --filter \"./apps/*\" dev",
+    "build": "pnpm --recursive build",
+    "zephyr:remote": "pnpm --filter remote zephyr",
+    "zephyr:host": "pnpm --filter host zephyr",
+    "zephyr:all": "pnpm zephyr:remote && pnpm zephyr:host",
     "typecheck": "tsc --noEmit",
     "lint": "biome lint .",
     "format": "biome format --write .",
     "test": "vitest run",
     "check": "biome check . && pnpm typecheck && pnpm test && pnpm build",
     "hooks:install": "git config core.hooksPath .githooks"
-  },
-  "dependencies": {
-    "zod": "^4.5.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.0",
