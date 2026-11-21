@@ -31,7 +31,7 @@ What won, what lost, and why. Newest last.
 - **Won:** `package.json` `"zephyr:dependencies": { "remote": "remote@latest" }`. In the MF config, the host has `localhost:3001` only on the dev server. Every build gets a placeholder at `unresolved-remote.invalid`, which the Zephyr plugin replaces with the resolved URL.
 - **Lost:** a localhost URL in every build, as in Zephyr's Rspack example (a failed resolution would then deploy a host pointing at a developer's machine); runtime-only resolution (more code for the same result).
 - **Why:** I read the installed plugin (`zephyr-xpack-internal` 1.8.0, `mut-webpack-federated-remotes-config`). From that code (read, then confirmed by the deploys), it rewrites a remote when the MF config already has that remote and its value starts with `<name>@`. The selector comes from `zephyr:dependencies`. A `.invalid` domain is reserved and does not resolve (RFC 2606), so a missed rewrite fails loudly in the host's error message.
-- **Selector, 2026-11-21:** `remote@latest` failed on the first host deploy (`ZE40003`, cannot resolve the app and version), because the only tag Zephyr created for the remote was `web_latest_<username>`, not `latest`. Now `remote@*` (any published version, newest wins), which needs no dashboard setup and works for whoever clones the repo. A named tag or environment (for example `production`) is what the demo's rollback story will use. Unverified: how `*` moves when a new remote version is deployed; step 7 tests it.
+- **Superseded 2026-11-21, see the next section.** Earlier text: `remote@latest` failed on the first host deploy (`ZE40003`, cannot resolve the app and version), because the only tag Zephyr created for the remote was `web_latest_<username>`, not `latest`. Now `remote@*` (any published version, newest wins), which needs no dashboard setup and works for whoever clones the repo. A named tag or environment (for example `production`) is what the demo's rollback story will use. Unverified: how `*` moves when a new remote version is deployed; step 7 tests it.
 
 ## 2026-11-21 · Skeleton simplified
 
@@ -52,3 +52,12 @@ What won, what lost, and why. Newest last.
 - **Lost:** the default `"version-first"`. It loads the remotes' entries before the host boots, to pick the highest shared version (read in `@module-federation/runtime-core` 2.9.3, and seen in dev). With the remote down, the host page stayed blank and the error boundary never mounted.
 - **Why:** with one host and a pinned React, the version negotiation buys nothing, and a host that survives a broken remote is the point of the error boundary. Found by stopping the remote in dev. The cause is in `@module-federation/runtime-core` 2.9.3, `shared/index.js:321`.
 - **Trade-off:** if host and remote ever ship different React versions, the host's copy wins instead of the highest one. Both are pinned to 19.3.1.
+
+## 2026-11-21 · Remote selector: the `latest` tag
+
+- **Won:** `"remote": "remote@latest"`, with a tag named `latest` created by hand in the dashboard (Branch is `main`, Target is Web, not locked).
+- **Lost:** `remote@*` (in my run it resolved to one concrete version at host build time: the deploy wrote the remote's version-5 URL into the host's `zephyr-manifest.json`, and a new remote version did not reach the host); `remote@<version>` (fixed by definition, not tried); `remote@web_latest_<username>` (the tag Zephyr creates itself; it names a person, so nobody else can reproduce it).
+- **Why:** a tag is the pointer that moves. With `latest`, the host resolves to `https://t-latest-remote-…zephyrcloud.app/remoteEntry.js`, which has no version in it.
+- **Verified 2026-11-21, by hand:** deployed remote release 3, the already-deployed host showed release 3 without a rebuild; pressed Redeploy on the previous version in the tag's history, the host showed release 2 again. A deploy or redeploy takes up to about a minute to show.
+- **Surprise:** `latest` only followed new deploys after the automatic `web_latest_<username>` tag was deleted. Until then the host kept the old version. Cause not confirmed.
+- **Cost:** one manual dashboard step, between deploying the remote and deploying the host. Not scriptable from what the docs show.

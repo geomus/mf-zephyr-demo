@@ -37,18 +37,23 @@ Needs a free Zephyr account, and a git repo with a branch, a commit and an `orig
 
 ```sh
 pnpm zephyr:remote     # first run opens a browser to log in
-pnpm zephyr:host
+```
+
+Then, once, in the Zephyr dashboard (remote app, DevOps, Tags, New Tag): create a tag named `latest` with the conditions Branch is `main` and Target is Web. Leave it unlocked, so it follows every new deploy.
+
+```sh
+pnpm zephyr:host       # must print: Resolved remotes: remote → https://t-latest-…
 ```
 
 Each command prints a live URL. Open the host's: it loads the remote from Zephyr's edge.
 
 How the host finds the remote:
 
-- `apps/host/package.json` maps it: `"zephyr:dependencies": { "remote": "remote@*" }`.
+- `apps/host/package.json` maps it: `"zephyr:dependencies": { "remote": "remote@latest" }`. `latest` is the tag created above, so the host follows wherever the tag points. In my run, `remote@*` was resolved once, at host build time, and the host did not see newer remote versions; a fixed version number would stay fixed by definition.
 - `apps/host/src/federation.ts` holds a placeholder URL for the remote. On a Zephyr build the plugin replaces it with the resolved URL. If that fails, the host shows the error instead of pointing at a wrong address.
 - The remote's package `name` must equal its Module Federation `name`.
 
-To ship a new remote version: change the remote, run `pnpm zephyr:remote`, reload the host. Rollback is a button in the Zephyr dashboard (previous version only).
+To ship a new remote version: change the remote, run `pnpm zephyr:remote`, reload the host. The host is not rebuilt. Rollback: in the dashboard, remote app, DevOps, Tags, `latest`, press **Redeploy** on the previous version, then reload the host (the change takes up to about a minute).
 
 The URLs change with every deploy. A tag URL (dashboard, DevOps, Tags) stays the same while the tag moves between versions.
 
@@ -70,7 +75,8 @@ First time with: Module Federation, Zephyr, Rspack, Biome. Used before: React an
 
 ## Known limits
 
-- Rollback goes only to the immediately previous version, and the docs describe it in the dashboard only.
+- Rollback goes only to the immediately previous version, and the docs describe it in the dashboard only. The dashboard calls the button "Redeploy" where the docs say "Rollback".
+- In my run, `latest` only followed new deploys after I deleted the tag Zephyr creates by itself (`web_latest_<username>`). Whether that is needed for everyone is untested.
 - Deploys are manual: CI does not deploy. Zephyr documents a CI token (`ZE_CI_TOKEN`); it is not set up here.
 - Whether a brand-new remote, unknown to an already-built host, can be loaded without rebuilding the host is untested.
 - Not tested in a browser by automation: the checks cover config and components, and the federation itself was checked by hand.

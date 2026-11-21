@@ -22,3 +22,4 @@ How AI (Claude Code, sandboxed) was used on this repo: one short entry per worki
 - **AI did:** read the error codes and the plugin source to explain each failure, proposed the fixes, kept the decision and friction logs current, and wrote the README and runbook.
 - **I decided:** to run the deploys myself outside the agent's sandbox, to delete the first throwaway project from the dashboard, and to leave pushed commits alone instead of rewriting them.
 - **Found by testing, not by the AI:** the host page went blank when the remote was down (the runtime fetches remotes before React mounts), and `remote@latest` did not resolve because Zephyr's default tag is named differently. Both are fixed and logged.
+- **Also found by testing:** `remote@*` froze the remote into the host build, so the host kept showing the old release. Moving to a tag (`remote@latest`) fixed it, and a rollback was shown with the dashboard's Redeploy button. Both are in `docs/decisions.md`.
