@@ -8,12 +8,13 @@ export const remoteFederation = {
   name: "remote",
   filename: "remoteEntry.js",
   exposes: {
-    "./Greeting": "./src/Greeting.tsx",
+    "./StatusBadge": "./src/StatusBadge.tsx",
+    "./FlightStatusCard": "./src/FlightStatusCard.tsx",
   },
   shared: {
     react: { singleton: true },
     "react-dom": { singleton: true },
   },
-  // shortcut: no generated remote types, the host declares the one module it uses; enable dts when the API grows.
+  // shortcut: no generated remote types, the host declares the modules it uses; enable dts when the API grows.
   dts: false,
 } satisfies FederationOptions;

@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import Greeting from "./Greeting";
+import FlightStatusCard from "./FlightStatusCard";
 
 // Standalone page so the remote can be opened and checked on its own.
 const container = document.getElementById("root");
@@ -10,7 +10,15 @@ createRoot(container).render(
   <StrictMode>
     <main>
       <h1>Remote (standalone)</h1>
-      <Greeting />
+      <FlightStatusCard
+        flight={{
+          code: "XA100",
+          from: "Northport",
+          to: "Eastvale",
+          departure: "09:15",
+          status: "on-time",
+        }}
+      />
     </main>
   </StrictMode>,
 );
