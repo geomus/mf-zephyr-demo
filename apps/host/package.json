@@ -9,7 +9,7 @@
     "zephyr": "rspack build --env zephyr"
   },
   "zephyr:dependencies": {
-    "remote": "remote@*"
+    "remote": "remote@latest"
   },
   "dependencies": {
     "react": "19.3.1",
