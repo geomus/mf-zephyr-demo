@@ -1,5 +1,6 @@
 {
   "sandbox": {
+    "network": { "allowLocalBinding": true },
     "filesystem": {
       "denyRead": [
         "~/",
