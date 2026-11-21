@@ -10,7 +10,7 @@ export function RemoteError({ message }: { message: string }) {
         <strong>The remote could not be loaded.</strong>
       </p>
       <p>{message}</p>
-      <p>Check that the remote is running (locally: pnpm dev) or deployed, then reload.</p>
+      <p>Check that the remote is running or deployed and reachable, then reload.</p>
     </div>
   );
 }
