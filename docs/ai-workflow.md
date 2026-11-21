@@ -15,3 +15,10 @@ How AI (Claude Code, sandboxed) was used on this repo: one short entry per worki
 - **AI did:** read the Zephyr docs and the installed plugin source, built both apps, wrote the tests, and started the decision and friction logs. The review caught a gap in the demo flow and a hard-coded localhost remote, and both were fixed in the plan.
 - **I decided:** a dev-only localhost URL is acceptable; plain CSS; dropping the skeleton's env and logger helpers; the dependency list; pnpm 12 (later moved back to 11, see below).
 - **Changed on evidence:** `ZE_DISABLED=true` was in the approved plan, but the plugin still touched the home folder at import, so deploy became opt-in. pnpm 12 failed in the sandbox, so pnpm 11 is pinned. Both are logged in `docs/decisions.md`.
+
+## 2026-11-21 · First deploys and fixes
+
+- **Asked:** commit the local build, then deploy the remote and the host through Zephyr, with me running the deploys and pasting the output.
+- **AI did:** read the error codes and the plugin source to explain each failure, proposed the fixes, kept the decision and friction logs current, and wrote the README and runbook.
+- **I decided:** to run the deploys myself outside the agent's sandbox, to delete the first throwaway project from the dashboard, and to leave pushed commits alone instead of rewriting them.
+- **Found by testing, not by the AI:** the host page went blank when the remote was down (the runtime fetches remotes before React mounts), and `remote@latest` did not resolve because Zephyr's default tag is named differently. Both are fixed and logged.

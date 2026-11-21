@@ -1,47 +1,31 @@
 # Runbook
 
-Operational facts for whoever runs this project (me, the client, or an agent). Keep it current: an agent updates it whenever it adds a secret, an environment or a scheduled job.
+Operational facts for whoever runs this project.
 
 ## Environments
 
-| Env        | URL            | Hosting account (owner) | Deploys from             |
-| ---------- | -------------- | ----------------------- | ------------------------ |
-| preview    | per-branch URL | <client account>        | Git integration on push  |
-| production | <domain>       | <client account>        | CI after merge to `main` |
+| App    | URL                                                      | Deploys from                    |
+| ------ | -------------------------------------------------------- | ------------------------------- |
+| remote | printed by `pnpm zephyr:remote`; stable URL: the tag URL | the owner's machine, on request |
+| host   | printed by `pnpm zephyr:host`; stable URL: the tag URL   | the owner's machine, on request |
+
+Hosting is Zephyr's managed cloud. No cloud account of our own.
 
 ## Secrets
 
-Every secret the app reads. Values never in the repo, chat or tickets.
+There are none in the repo or in CI. The only credential is the Zephyr login token, stored locally in `~/.zephyr` after the first browser login.
 
-| Name              | Used by   | Stored in             | Owner  | Scope / permissions | Last rotated |
-| ----------------- | --------- | --------------------- | ------ | ------------------- | ------------ |
-| `EXAMPLE_API_KEY` | `src/...` | platform secret store | client | read-only           | YYYY-MM-DD   |
-
-### Rotation (per secret, and all at once if a provider reports an incident)
-
-1. Create the new credential in the provider with the same minimal scope.
-2. Update it in the secret store of every environment (preview, production, CI).
-3. Redeploy or restart so the new value is read; confirm a request succeeds.
-4. Revoke the old credential in the provider.
-5. Update "Last rotated" above. If rotation was triggered by an incident, note the date and the provider notice in `docs/decisions/`.
+- Revoke or rotate: sign out or revoke the session in the Zephyr dashboard, then delete the local login and log in again on the next deploy.
+- CI deploys would need a Zephyr CI token (`ZE_CI_TOKEN`) in the CI secret store. Not set up.
 
 ## Deploy and rollback
 
-- Deploy: merge to `main`; CI deploys with its own token. The coding agent never deploys to production.
-- Rollback: <platform command or dashboard step to promote the previous version>.
-
-## Scheduled jobs and webhooks
-
-| Name | Trigger | What it does | Where to see runs | How to pause |
-| ---- | ------- | ------------ | ----------------- | ------------ |
+- Deploy: `pnpm zephyr:remote`, then `pnpm zephyr:host`. Remote first: the host resolves it at build time. Never commit a script named `deploy` (pnpm has a built-in `deploy`).
+- Rollback: in the Zephyr dashboard, open the app, then the version list, and use the Rollback button. It goes only to the immediately previous version.
+- Remove a project: delete it in the dashboard. Version numbers keep counting.
 
 ## When something breaks
 
-1. Find the failing request or run by `correlationId` in logs, then the same id in error tracking.
-2. Check provider status pages (hosting, database, payment, messaging).
-3. Pause scheduled jobs that write to external systems before fixing.
-
-## Spend limits
-
-| Provider | Hard cap or alert | Where configured |
-| -------- | ----------------- | ---------------- |
+1. Host shows "The remote could not be loaded": open the browser console and read the Module Federation error, then check that the remote's URL answers.
+2. Host build prints `Failed to resolve remote dependencies`: deploy the remote first, and check the selector in `apps/host/package.json`.
+3. Check Zephyr's status and docs: https://docs.zephyr-cloud.io/
