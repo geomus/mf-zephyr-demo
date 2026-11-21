@@ -31,7 +31,7 @@ What won, what lost, and why. Newest last.
 - **Won:** `package.json` `"zephyr:dependencies": { "remote": "remote@latest" }`. In the MF config, the host has `localhost:3001` only on the dev server. Every build gets a placeholder at `unresolved-remote.invalid`, which the Zephyr plugin replaces with the resolved URL.
 - **Lost:** a localhost URL in every build, as in Zephyr's Rspack example (a failed resolution would then deploy a host pointing at a developer's machine); runtime-only resolution (more code for the same result).
 - **Why:** I read the installed plugin (`zephyr-xpack-internal` 1.8.0, `mut-webpack-federated-remotes-config`). From that code (read, then confirmed by the deploys), it rewrites a remote when the MF config already has that remote and its value starts with `<name>@`. The selector comes from `zephyr:dependencies`. A `.invalid` domain is reserved and does not resolve (RFC 2606), so a missed rewrite fails loudly in the host's error message.
-- **Unverified:** whether `latest` is the right selector. It depends on the tags and environments that exist after the first deploy.
+- **Selector, 2026-11-21:** `remote@latest` failed on the first host deploy (`ZE40003`, cannot resolve the app and version), because the only tag Zephyr created for the remote was `web_latest_<username>`, not `latest`. Now `remote@*` (any published version, newest wins), which needs no dashboard setup and works for whoever clones the repo. A named tag or environment (for example `production`) is what the demo's rollback story will use. Unverified: how `*` moves when a new remote version is deployed; step 7 tests it.
 
 ## 2026-11-21 · Skeleton simplified
 
