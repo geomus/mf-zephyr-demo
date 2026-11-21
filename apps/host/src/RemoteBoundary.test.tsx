@@ -12,5 +12,6 @@ describe("RemoteBoundary", () => {
     expect(html).toContain('role="alert"');
     expect(html).toContain("Failed to fetch remoteEntry.js");
     expect(html).toContain("then reload");
+    expect(html).toContain("Technical details");
   });
 });

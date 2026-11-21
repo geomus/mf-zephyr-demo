@@ -3,15 +3,17 @@ import StatusBadge, { type FlightStatus } from "./StatusBadge";
 
 // The host owns the data and passes it in. Keep apps/host/src/remote.d.ts in step with this type.
 export type Flight = {
-  code: string;
+  code: string; // airline code + number, for example "XX 1204"
+  registration: string; // aircraft registration, for example "LV-ABC"
   from: string;
   to: string;
-  departure: string;
+  departure: string; // local time, HH:MM
   status: FlightStatus;
 };
 
 export default function FlightStatusCard({ flight }: { flight: Flight }) {
-  const titleId = `flight-${flight.code}`;
+  // An id cannot contain spaces, and flight codes do.
+  const titleId = `flight-${flight.code.replace(/\s+/g, "-")}`;
   return (
     <article
       aria-labelledby={titleId}
@@ -21,6 +23,7 @@ export default function FlightStatusCard({ flight }: { flight: Flight }) {
         {flight.code}
       </h3>
       <p>{`${flight.from} to ${flight.to}, departs ${flight.departure}`}</p>
+      <p>{`Aircraft ${flight.registration}`}</p>
       <StatusBadge status={flight.status} />
       <p style={{ fontSize: "0.75rem", marginBottom: 0 }}>{`Remote release ${RELEASE}`}</p>
     </article>

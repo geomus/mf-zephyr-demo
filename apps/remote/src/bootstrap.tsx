@@ -12,9 +12,10 @@ createRoot(container).render(
       <h1>Remote (standalone)</h1>
       <FlightStatusCard
         flight={{
-          code: "XA100",
-          from: "Northport",
-          to: "Eastvale",
+          code: "XX 1204",
+          registration: "LV-XAB",
+          from: "Buenos Aires (AEP)",
+          to: "Córdoba (COR)",
           departure: "09:15",
           status: "on-time",
         }}

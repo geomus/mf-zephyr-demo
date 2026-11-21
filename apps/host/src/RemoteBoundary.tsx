@@ -9,8 +9,11 @@ export function RemoteError({ message }: { message: string }) {
       <p>
         <strong>The remote could not be loaded.</strong>
       </p>
-      <p>{message}</p>
       <p>Check that the remote is running or deployed and reachable, then reload.</p>
+      <details>
+        <summary>Technical details</summary>
+        <pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{message}</pre>
+      </details>
     </div>
   );
 }

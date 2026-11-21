@@ -1,8 +1,29 @@
 import type { Flight } from "remote/FlightStatusCard";
 
-// Invented sample data: the host owns it and hands it to the remote's components as props.
+// Invented data in Argentine formats (made-up airline code and LV- registrations); the host passes it to the remote as props.
 export const flights: Flight[] = [
-  { code: "XA100", from: "Northport", to: "Eastvale", departure: "09:15", status: "on-time" },
-  { code: "XA214", from: "Eastvale", to: "Lakeside", departure: "11:40", status: "delayed" },
-  { code: "XA307", from: "Lakeside", to: "Northport", departure: "14:05", status: "cancelled" },
+  {
+    code: "XX 1204",
+    registration: "LV-XAB",
+    from: "Buenos Aires (AEP)",
+    to: "Córdoba (COR)",
+    departure: "09:15",
+    status: "on-time",
+  },
+  {
+    code: "XX 2310",
+    registration: "LV-XBC",
+    from: "Mendoza (MDZ)",
+    to: "Salta (SLA)",
+    departure: "11:40",
+    status: "delayed",
+  },
+  {
+    code: "XX 3077",
+    registration: "LV-XCD",
+    from: "Bariloche (BRC)",
+    to: "Buenos Aires (AEP)",
+    departure: "14:05",
+    status: "cancelled",
+  },
 ];

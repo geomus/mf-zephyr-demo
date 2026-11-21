@@ -66,7 +66,7 @@ What won, what lost, and why. Newest last.
 
 - **Won:** two exposed components, `StatusBadge` and `FlightStatusCard`. The host owns invented flight data and passes it in as props. The card shows "Remote release N".
 - **Lost:** the first remote, a "Hello" component (nothing to explain about federation); a badge alone (smaller, but only one exposed module).
-- **Why:** two exposes show the contract between host and remote (props typed in `apps/host/src/remote.d.ts`), a component library is what a shared UI remote is for, and adding a module or a variant is a small, safe live change. The theme is generic and the data is invented. The release label is what makes a new version and a rollback visible.
+- **Why:** two exposes show the contract between host and remote (props typed in `apps/host/src/remote.d.ts`), a component library is what a shared UI remote is for, and adding a module or a variant is a small, safe live change. The theme is generic and the data is invented, in Argentine formats (airline code plus four digits, `LV-` registrations, domestic airports); the airline code and the registrations are made up. The release label is what makes a new version and a rollback visible.
 - **Cost:** the host's types for the remote are written by hand and can drift. Generated types (`dts`) are the next step.
 
 ## 2026-11-21 · Tests: Vitest with `renderToString`, no DOM library

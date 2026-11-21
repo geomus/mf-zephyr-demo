@@ -13,6 +13,7 @@ declare module "remote/FlightStatusCard" {
 
   export type Flight = {
     code: string;
+    registration: string;
     from: string;
     to: string;
     departure: string;
