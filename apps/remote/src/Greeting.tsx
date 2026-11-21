@@ -1,5 +1,5 @@
 // Bump on every remote release so a new version and a rollback are visible in the host.
-export const RELEASE = 2;
+export const RELEASE = 3;
 
 export default function Greeting() {
   return (
