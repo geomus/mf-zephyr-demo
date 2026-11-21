@@ -61,3 +61,16 @@ What won, what lost, and why. Newest last.
 - **Verified 2026-11-21, by hand:** deployed remote release 3, the already-deployed host showed release 3 without a rebuild; pressed Redeploy on the previous version in the tag's history, the host showed release 2 again. A deploy or redeploy takes up to about a minute to show.
 - **Surprise:** `latest` only followed new deploys after the automatic `web_latest_<username>` tag was deleted. Until then the host kept the old version. Cause not confirmed.
 - **Cost:** one manual dashboard step, between deploying the remote and deploying the host. Not scriptable from what the docs show.
+
+## 2026-11-21 · What the remote serves: a status badge and a flight status card
+
+- **Won:** two exposed components, `StatusBadge` and `FlightStatusCard`. The host owns invented flight data and passes it in as props. The card shows "Remote release N".
+- **Lost:** the first remote, a "Hello" component (nothing to explain about federation); a badge alone (smaller, but only one exposed module).
+- **Why:** two exposes show the contract between host and remote (props typed in `apps/host/src/remote.d.ts`), a component library is what a shared UI remote is for, and adding a module or a variant is a small, safe live change. The theme is generic and the data is invented. The release label is what makes a new version and a rollback visible.
+- **Cost:** the host's types for the remote are written by hand and can drift. Generated types (`dts`) are the next step.
+
+## 2026-11-21 · Tests: Vitest with `renderToString`, no DOM library
+
+- **Won:** components are rendered to a string with `react-dom/server` and the output is checked. A test imports every exposed file and checks that it has a default component, so a broken expose fails `pnpm check`.
+- **Lost:** jsdom and Testing Library (two more dependencies for a few components); a browser test (valuable, but needs a browser and a running remote).
+- **Why:** the checks run anywhere, fast, with no setup. What they cannot see is the federation itself, which is why the README says it was checked by hand.

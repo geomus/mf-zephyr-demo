@@ -23,3 +23,9 @@ How AI (Claude Code, sandboxed) was used on this repo: one short entry per worki
 - **I decided:** to run the deploys myself outside the agent's sandbox, to delete the first throwaway project from the dashboard, and to leave pushed commits alone instead of rewriting them.
 - **Found by testing, not by the AI:** the host page went blank when the remote was down (the runtime fetches remotes before React mounts), and `remote@latest` did not resolve because Zephyr's default tag is named differently. Both are fixed and logged.
 - **Also found by testing:** `remote@*` froze the remote into the host build, so the host kept showing the old release. Moving to a tag (`remote@latest`) fixed it, and a rollback was shown with the dashboard's Redeploy button. Both are in `docs/decisions.md`.
+
+## 2026-11-21 · Cleaning the history, and the remote's content
+
+- **Asked:** scan the repo and its history for anything that should not be public, then change what the remote serves.
+- **AI did:** ran the scans with a small model, listed the findings (personal e-mail as commit author, wording that did not belong in a public repo), and prepared a history cleanup. A project hook stops the agent from rewriting history, so I ran that step myself.
+- **I decided:** to rewrite the history once, before making the repo public, keep the plan out of the repo, and use a GitHub no-reply address as author; and which remote content to build (a status badge and a flight status card), keeping it small enough to explain line by line.
