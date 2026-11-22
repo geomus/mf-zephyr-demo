@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { RELEASE } from "./release";
 import StatusBadge, { type FlightStatus } from "./StatusBadge";
 
@@ -12,8 +13,7 @@ export type Flight = {
 };
 
 export default function FlightStatusCard({ flight }: { flight: Flight }) {
-  // An id cannot contain spaces, and flight codes do.
-  const titleId = `flight-${flight.code.replace(/\s+/g, "-")}`;
+  const titleId = useId();
   return (
     <article
       aria-labelledby={titleId}

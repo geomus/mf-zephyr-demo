@@ -7,8 +7,13 @@ const presentation: Record<FlightStatus, { label: string; color: string; backgro
   cancelled: { label: "Cancelled", color: "#991b1b", background: "#fee2e2" },
 };
 
+const unknown = { color: "#374151", background: "#f3f4f6" };
+
 export default function StatusBadge({ status }: { status: FlightStatus }) {
-  const { label, color, background } = presentation[status];
+  // Props cross a deploy boundary: a status this version does not know is shown as text instead of crashing.
+  const { label, color, background } = Object.hasOwn(presentation, status)
+    ? presentation[status]
+    : { label: status, ...unknown };
   return (
     <span
       style={{

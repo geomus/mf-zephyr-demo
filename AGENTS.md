@@ -24,7 +24,7 @@ A Module Federation host and remote (Rspack, React, TypeScript) deployed with Ze
 ## Conventions
 
 - Validate external input at the boundary (no external input today: no env vars, no API).
-- No `console.log` in committed code. Browser errors go to `console.error` only where a `biome-ignore` explains why.
+- No `console.log` in committed code. React already logs errors caught by an error boundary; do not log them again.
 - Errors: throw typed errors with an actionable message; never swallow.
 - Commits: one line, conventional (`feat:`, `fix:`, `chore:` ...). No AI attribution.
 

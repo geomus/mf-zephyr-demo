@@ -21,6 +21,14 @@ describe("StatusBadge", () => {
   ])("writes the status out as text for %s", (status, label) => {
     expect(renderToString(<StatusBadge status={status} />)).toContain(label);
   });
+
+  it("shows a status it does not know as text instead of crashing", () => {
+    // A host deployed later can send a status this remote version does not know.
+    for (const unknown of ["boarding", "constructor"]) {
+      const html = renderToString(<StatusBadge status={unknown as FlightStatus} />);
+      expect(html).toContain(unknown);
+    }
+  });
 });
 
 describe("FlightStatusCard", () => {
@@ -33,9 +41,17 @@ describe("FlightStatusCard", () => {
     expect(html).toContain("Delayed");
   });
 
-  it("is labelled by its heading, with an id that has no spaces", () => {
-    expect(html).toContain('aria-labelledby="flight-XX-1204"');
-    expect(html).toContain('id="flight-XX-1204"');
+  it("is labelled by its own heading, even when two cards show the same flight", () => {
+    const twice = renderToString(
+      <>
+        <FlightStatusCard flight={flight} />
+        <FlightStatusCard flight={flight} />
+      </>,
+    );
+    const labels = [...twice.matchAll(/aria-labelledby="([^"]+)"/g)].map((match) => match[1]);
+    expect(labels).toHaveLength(2);
+    expect(new Set(labels).size).toBe(2);
+    for (const label of labels) expect(twice).toContain(`id="${label}"`);
   });
 
   it("shows the release number so a new version is visible in the host", () => {
