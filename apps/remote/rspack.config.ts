@@ -39,7 +39,7 @@ export default async (env: CliEnv) => {
       ],
     },
     // "auto" resolves chunk URLs from wherever remoteEntry.js was served, local or Zephyr.
-    output: { publicPath: "auto", uniqueName: "remote" },
+    output: { publicPath: "auto", uniqueName: "remote", clean: true },
     devServer: { port: 3001, headers: { "Access-Control-Allow-Origin": "*" } },
     plugins: [
       new HtmlRspackPlugin({ templateContent: html }),

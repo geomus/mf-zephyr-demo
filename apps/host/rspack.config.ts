@@ -38,7 +38,7 @@ export default async (env: CliEnv) => {
         },
       ],
     },
-    output: { publicPath: "auto", uniqueName: "host" },
+    output: { publicPath: "auto", uniqueName: "host", clean: true },
     devServer: { port: 3000 },
     plugins: [
       new HtmlRspackPlugin({ templateContent: html }),
