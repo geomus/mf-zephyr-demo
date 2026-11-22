@@ -21,7 +21,7 @@ There are none in the repo or in CI. The only credential is the Zephyr login tok
 ## Deploy and rollback
 
 - Deploy: `pnpm zephyr:remote`, then `pnpm zephyr:host`. Remote first: the host resolves it at build time. Never commit a script named `deploy` (pnpm has a built-in `deploy`).
-- Rollback: in the Zephyr dashboard, open the app, then the version list, and use the Rollback button. It goes only to the immediately previous version.
+- Rollback: in the Zephyr dashboard, remote app, DevOps, Tags, `latest`, press **Redeploy** on the previous version, then reload the host (up to about a minute). The docs say rollback goes only to the immediately previous version.
 - Remove a project: delete it in the dashboard. Version numbers keep counting.
 
 ## When something breaks

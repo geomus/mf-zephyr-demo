@@ -29,3 +29,12 @@ How AI (Claude Code, sandboxed) was used on this repo: one short entry per worki
 - **Asked:** scan the repo and its history for anything that should not be public, then change what the remote serves.
 - **AI did:** ran the scans with a small model, listed the findings (personal e-mail as commit author, wording that did not belong in a public repo), and prepared a history cleanup. A project hook stops the agent from rewriting history, so I ran that step myself.
 - **I decided:** to rewrite the history once, before making the repo public, keep the plan out of the repo, and use a GitHub no-reply address as author; and which remote content to build (a status badge and a flight status card), keeping it small enough to explain line by line.
+
+## 2026-11-21 · Review of the whole delivery
+
+- **Asked:** check a clean clone and scan files and history for leaks, then have an independent reviewer compare the whole delivery with the requirements.
+- **AI did:** small models ran the clean clone and the scans; a strong read-only model reviewed the full diff. It found a documented change that would turn `pnpm check` red, a rollback described two ways, friction-log entries without times, and a guard (`failBuild`) that I would have added but that does not cover the case. I also asked for sample data in Argentine formats and a collapsible error message; the AI implemented both.
+- **I decided:** which findings to apply, to keep my private explanation notes out of the repo, and to leave pushed commits alone except for the one history cleanup.
+- **Second pass:** after applying those findings, the same reviewer read the delivery again and found two more: the add-a-remote steps still left `pnpm check` and CI red, and the friction log disagreed with the decision log on `failBuild`. Both were fixed.
+- **Code audit:** a separate code-review pass then found that an unknown status from the host would crash the remote's badge, that repeated cards shared an `id`, that a failed startup left a blank page, that errors were logged twice, and that `dist/` kept stale files. I chose which to fix (those five, plus one-line comments) and which to leave as next steps (generated types, one boundary per module, a shared build config).
+- **Checked by hand, not by the AI:** the host in a browser with the remote up and down, every deploy, and the dashboard steps.

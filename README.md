@@ -15,12 +15,15 @@ The remote shares two UI components (a status badge and a flight status card, wi
 ```sh
 mise install      # optional: Node and pnpm from mise.toml
 pnpm install
+pnpm hooks:install  # optional: format, lint and typecheck before each commit
 pnpm dev          # remote on :3001, host on :3000 (both ports must be free)
 ```
 
 Open http://localhost:3000: a legend of three badges and three dashed flight cards, all loaded from the remote. Stop the remote and reload: the host stays up and shows "The remote could not be loaded."
 
 Local runs never touch Zephyr: no login, no network, no `~/.zephyr`.
+
+Expected warning on every build and dev start, harmless: `Manifest will use absolute path resolution via its host at runtime, reason: publicPath='auto'`. It is printed by the Module Federation manifest plugin because `publicPath` is `'auto'`, which is set on purpose so the remote's files load from whatever URL serves it. Builds, dev and deploys worked with it.
 
 ```sh
 pnpm check        # Biome, typecheck, tests, build of both apps
@@ -59,6 +62,8 @@ pnpm zephyr:remote     # first run opens a browser to log in
 
 Then, once, in the Zephyr dashboard (remote app, DevOps, Tags, New Tag): create a tag named `latest` with the conditions Branch is `main` and Target is Web. Leave it unlocked, so it follows every new deploy.
 
+If, after the next remote deploy, the host still shows the old version, check the remote's tags: in my run `latest` only started following deploys after I deleted the tag Zephyr creates by itself (`web_latest_<username>`). Cause not confirmed.
+
 ```sh
 pnpm zephyr:host       # must print: Resolved remotes: remote → https://t-latest-…
 ```
@@ -77,8 +82,8 @@ The URLs change with every deploy. A tag URL (dashboard, DevOps, Tags) stays the
 
 ## Change it
 
-- **Add an exposed module:** create `apps/remote/src/<Name>.tsx` with a default export, add `"./<Name>": "./src/<Name>.tsx"` to `exposes` in `apps/remote/src/federation.ts`, declare `remote/<Name>` in `apps/host/src/remote.d.ts`, and `lazy(() => import("remote/<Name>"))` in the host. `pnpm check` fails if an exposed file has no default component.
-- **Add a remote:** copy `apps/remote`, give it a new `name` (package and Module Federation), add it to `remotes` in `apps/host/src/federation.ts` and to `zephyr:dependencies`, and deploy it before the host.
+- **Add an exposed module:** create `apps/remote/src/<Name>.tsx` with a default export, add `"./<Name>": "./src/<Name>.tsx"` to `exposes` in `apps/remote/src/federation.ts`, declare `remote/<Name>` in `apps/host/src/remote.d.ts`, and `lazy(() => import("remote/<Name>"))` in the host. `pnpm check` fails if an exposed file has no default component, or if the host declares a module the remote does not expose.
+- **Add a remote:** copy `apps/remote` and change its `name` in `package.json` and in `src/federation.ts`, plus `uniqueName` and `devServer.port` in `rspack.config.ts` (the copy would otherwise reuse port 3001). In `apps/host/src/federation.ts` add an entry to `remotes`, once for the dev URL and once for the placeholder (`<name>@…`); add it to `zephyr:dependencies` in `apps/host/package.json`. Run `pnpm install` and commit the updated `pnpm-lock.yaml` (CI installs with a frozen lockfile). Deploy it, create its `latest` tag, then deploy the host.
 
 ## Decisions and notes
 
@@ -89,12 +94,19 @@ The URLs change with every deploy. A tag URL (dashboard, DevOps, Tags) stays the
 
 ## Built with
 
-First time with: Module Federation, Zephyr, Rspack, Biome. Used before: React and TypeScript daily; Webpack early on, then mostly esbuild; Vite and Vitest a little. I learned the first four from the Zephyr docs and the installed plugin's source, with an AI assistant (see `docs/ai-workflow.md`).
+First time with these four, and why each is here:
+
+- **Module Federation:** loads the remote's components at runtime, which is the point of the project.
+- **Zephyr:** deploys both apps and resolves where the remote lives.
+- **Rspack:** the bundler Zephyr's Module Federation examples use; its config is close to Webpack's, which I used early on.
+- **Biome:** one tool for lint and format, which came with the project skeleton I started from.
+
+Used before: React and TypeScript daily; Webpack early on, then mostly esbuild; Vite and Vitest a little. I learned the four new ones from the Zephyr docs and the installed plugin's source, with an AI assistant (see `docs/ai-workflow.md`).
 
 ## Known limits
 
-- Rollback goes only to the immediately previous version, and the docs describe it in the dashboard only. The dashboard calls the button "Redeploy" where the docs say "Rollback".
-- In my run, `latest` only followed new deploys after I deleted the tag Zephyr creates by itself (`web_latest_<username>`). Whether that is needed for everyone is untested.
+- The docs say rollback goes only to the immediately previous version, and describe it in the dashboard only. The tag history showed a Redeploy button on every older version; I only tried the previous one. The dashboard calls the button "Redeploy" where the docs say "Rollback".
+- A deploy that cannot resolve the remote still succeeds (the host then shows the error, because of its placeholder URL). Check that `pnpm zephyr:host` prints `Resolved remotes:`.
 - Deploys are manual: CI does not deploy. Zephyr documents a CI token (`ZE_CI_TOKEN`); it is not set up here.
 - Whether a brand-new remote, unknown to an already-built host, can be loaded without rebuilding the host is untested.
 - Not tested in a browser by automation: the checks cover config and components, and the federation itself was checked by hand.

@@ -31,11 +31,11 @@ What won, what lost, and why. Newest last.
 - **Won:** `package.json` `"zephyr:dependencies": { "remote": "remote@latest" }`. In the MF config, the host has `localhost:3001` only on the dev server. Every build gets a placeholder at `unresolved-remote.invalid`, which the Zephyr plugin replaces with the resolved URL.
 - **Lost:** a localhost URL in every build, as in Zephyr's Rspack example (a failed resolution would then deploy a host pointing at a developer's machine); runtime-only resolution (more code for the same result).
 - **Why:** I read the installed plugin (`zephyr-xpack-internal` 1.8.0, `mut-webpack-federated-remotes-config`). From that code (read, then confirmed by the deploys), it rewrites a remote when the MF config already has that remote and its value starts with `<name>@`. The selector comes from `zephyr:dependencies`. A `.invalid` domain is reserved and does not resolve (RFC 2606), so a missed rewrite fails loudly in the host's error message.
-- **Superseded 2026-11-21, see the next section.** Earlier text: `remote@latest` failed on the first host deploy (`ZE40003`, cannot resolve the app and version), because the only tag Zephyr created for the remote was `web_latest_<username>`, not `latest`. Now `remote@*` (any published version, newest wins), which needs no dashboard setup and works for whoever clones the repo. A named tag or environment (for example `production`) is what the demo's rollback story will use. Unverified: how `*` moves when a new remote version is deployed; step 7 tests it.
+- **Superseded** by "Remote selector: the `latest` tag" below: the first attempt, `remote@latest`, failed (`ZE40003`, no such tag) and `*` was frozen at build time.
 
 ## 2026-11-21 · Skeleton simplified
 
-- Removed `src/lib/env.ts`, `src/lib/logger.ts`, their tests and `zod`. There is no server, and our code reads no env vars. The browser reports a failed remote with `console.error` (one documented `biome-ignore`). Approved as a deviation from the requirements.
+- Removed `src/lib/env.ts`, `src/lib/logger.ts`, their tests and `zod`. There is no server, and our code reads no env vars. A failed remote is logged by React itself: React 19 logs every error an error boundary catches (`defaultOnCaughtError`, read in the installed `react-dom`), so the app adds no logging of its own. Approved as a deviation from the requirements.
 - The ADR folder (`docs/decisions/`) became this single file.
 - No CSS framework: inline styles on two components. Tailwind would add a PostCSS toolchain for two boxes.
 - Each app owns its `rspack.config.ts` (about 50 lines, some duplication). A shared root config could not resolve the apps' dependencies, and each app deploys on its own.
@@ -61,6 +61,12 @@ What won, what lost, and why. Newest last.
 - **Verified 2026-11-21, by hand:** deployed remote release 3, the already-deployed host showed release 3 without a rebuild; pressed Redeploy on the previous version in the tag's history, the host showed release 2 again. A deploy or redeploy takes up to about a minute to show.
 - **Surprise:** `latest` only followed new deploys after the automatic `web_latest_<username>` tag was deleted. Until then the host kept the old version. Cause not confirmed.
 - **Cost:** one manual dashboard step, between deploying the remote and deploying the host. Not scriptable from what the docs show.
+
+## 2026-11-21 · A failed remote resolution does not fail the build
+
+- **Won:** nothing extra. The host's placeholder URL (`.invalid`) makes an unresolved remote show up as an error in the page, and the README says to check that `pnpm zephyr:host` prints `Resolved remotes:`.
+- **Lost:** `withZephyr({ failBuild: true })`. The option exists in `zephyr-rspack-plugin` 1.8.0, but from the installed code (read, not run) it only rethrows errors routed through the global error handler (configuration and upload failures). An unresolved remote is logged as a warning, so the option would not catch it.
+- **Why:** a guard that looks like it works and does not is worse than none. Verified only by reading; I did not run a build with a missing remote and `failBuild`.
 
 ## 2026-11-21 · What the remote serves: a status badge and a flight status card
 
