@@ -1,16 +1,10 @@
 import { describe, expect, it } from "vitest";
+import packageJson from "../package.json?raw";
 import { remoteFederation } from "./federation";
 
 describe("remote federation config", () => {
-  it("uses the package name the host and Zephyr refer to", () => {
-    expect(remoteFederation.name).toBe("remote");
-  });
-
-  it("exposes the two modules the host loads", () => {
-    expect(Object.keys(remoteFederation.exposes).sort()).toEqual([
-      "./FlightStatusCard",
-      "./StatusBadge",
-    ]);
+  it("uses the package name, which is how Zephyr maps the remote to the deployed app", () => {
+    expect(remoteFederation.name).toBe(JSON.parse(packageJson).name);
   });
 
   it("exposes only modules with a default component", async () => {

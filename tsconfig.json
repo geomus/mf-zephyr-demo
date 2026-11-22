@@ -14,5 +14,5 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["apps/*/src", "apps/*/rspack.config.ts"]
+  "include": ["raw.d.ts", "apps/*/src", "apps/*/rspack.config.ts"]
 }
