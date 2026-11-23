@@ -38,3 +38,9 @@ How AI (Claude Code, sandboxed) was used on this repo: one short entry per worki
 - **Second pass:** after applying those findings, the same reviewer read the delivery again and found two more: the add-a-remote steps still left `pnpm check` and CI red, and the friction log disagreed with the decision log on `failBuild`. Both were fixed.
 - **Code audit:** a separate code-review pass then found that an unknown status from the host would crash the remote's badge, that repeated cards shared an `id`, that a failed startup left a blank page, that errors were logged twice, and that `dist/` kept stale files. I chose which to fix (those five, plus one-line comments) and which to leave as next steps (generated types, one boundary per module, a shared build config).
 - **Checked by hand, not by the AI:** the host in a browser with the remote up and down, every deploy, and the dashboard steps.
+
+## 2026-11-23 · Deploy from CI
+
+- **Asked:** what deploying from CI with a Zephyr token would take, then build it on a separate branch.
+- **AI did:** read the installed plugin to find which token it supports and how it identifies a GitHub run, proposed the workflow, wrote it and updated the docs.
+- **I decided:** manual trigger only, an approval gate through a GitHub environment, and keeping the change off `main` until the delivery is reviewed.

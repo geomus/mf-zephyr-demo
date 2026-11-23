@@ -1,0 +1,86 @@
+name: zephyr
+
+# Deploys through Zephyr. Manual only, and each job waits for approval in the `zephyr` environment.
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: What to deploy (the remote always goes before the host)
+        type: choice
+        options: [all, remote, host]
+        default: all
+
+permissions:
+  contents: read
+
+# A deploy is never cancelled halfway; a second run waits for the first.
+concurrency:
+  group: zephyr
+  cancel-in-progress: false
+
+defaults:
+  run:
+    # Explicit bash turns on pipefail, so a failed build is not hidden by `tee`.
+    shell: bash
+
+# shortcut: actions pinned to major tags, pin to full commit SHAs before production use.
+jobs:
+  remote:
+    if: inputs.target != 'host'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: zephyr
+    env:
+      ZE_CI_TOKEN: ${{ secrets.ZE_CI_TOKEN }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          filter: blob:none
+      - uses: jdx/mise-action@v3
+      - name: Locate pnpm store
+        id: pnpm-store
+        run: echo "dir=$(pnpm store path)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-store.outputs.dir }}
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: pnpm-${{ runner.os }}-
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Deploy remote
+        run: pnpm zephyr:remote
+
+  host:
+    needs: remote
+    # Runs after a successful remote deploy, or alone when only the host was asked for.
+    if: ${{ !failure() && !cancelled() && inputs.target != 'remote' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: zephyr
+    env:
+      ZE_CI_TOKEN: ${{ secrets.ZE_CI_TOKEN }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          filter: blob:none
+      - uses: jdx/mise-action@v3
+      - name: Locate pnpm store
+        id: pnpm-store
+        run: echo "dir=$(pnpm store path)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-store.outputs.dir }}
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: pnpm-${{ runner.os }}-
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Deploy host
+        run: pnpm zephyr:host 2>&1 | tee "$RUNNER_TEMP/host-deploy.log"
+      # The plugin only warns on an unresolved remote and still deploys; nobody reads the log here, so fail the run.
+      - name: Check the remote was resolved
+        run: |
+          log="$RUNNER_TEMP/host-deploy.log"
+          if grep -q "Failed to resolve remote dependencies" "$log" || ! grep -q "Resolved remotes:" "$log"; then
+            echo "::error::The host deploy did not resolve the remote. Deploy the remote first and check zephyr:dependencies in apps/host/package.json."
+            exit 1
+          fi

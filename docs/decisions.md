@@ -80,3 +80,10 @@ What won, what lost, and why. Newest last.
 - **Won:** components are rendered to a string with `react-dom/server` and the output is checked. A test imports every exposed file and checks that it has a default component, so a broken expose fails `pnpm check`.
 - **Lost:** jsdom and Testing Library (two more dependencies for a few components); a browser test (valuable, but needs a browser and a running remote).
 - **Why:** the checks run anywhere, fast, with no setup. What they cannot see is the federation itself, which is why the README says it was checked by hand.
+
+## 2026-11-23 · Deploy from CI: manual, with an approval gate
+
+- **Won:** a separate workflow, `.github/workflows/zephyr.yml`, started by hand (`workflow_dispatch`, target `all`, `remote` or `host`). Both jobs use the GitHub environment `zephyr`, which holds `ZE_CI_TOKEN` and requires the owner's approval. The host job needs the remote job, and fails when its log lacks `Resolved remotes:`.
+- **Lost:** deploying on every merge to `main` (it would change what is live without a decision); putting the deploy in `ci.yml` (checks would then need a secret, and pull requests from forks could not run them); `ZE_SERVER_TOKEN` with `ZE_USER_EMAIL` (marked deprecated in `zephyr-agent` 1.8.0, which names `ZE_CI_TOKEN` as the only supported CI credential).
+- **Why:** it keeps the rule that every deploy has the owner's OK, now recorded by GitHub. The plugin reads the token and the GitHub actor on its own (read in `zephyr-agent` 1.8.0, `node-persist/ci-token-identity/github.js`), so the app config does not change.
+- **Not verified:** a run of the workflow; whether a deploy made with the CI token moves the `latest` tag like a local one.

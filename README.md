@@ -36,7 +36,7 @@ Expected warning on every build and dev start, harmless: `Manifest will use abso
 pnpm check        # Biome, typecheck, tests, build of both apps
 ```
 
-CI (`.github/workflows/ci.yml`) runs the same steps without any Zephyr credentials.
+CI (`.github/workflows/ci.yml`) runs the same steps without any Zephyr credentials. Deploying from CI is a separate, manual workflow (see [Deploy from CI](#deploy-from-ci)).
 
 ## Repo layout
 
@@ -57,6 +57,7 @@ apps/
     package.json               "zephyr:dependencies" maps the remote to a tag
 docs/                        decisions, friction log, AI workflow, runbook
 .github/workflows/ci.yml     checks without credentials
+.github/workflows/zephyr.yml manual deploy through Zephyr, with a CI token
 ```
 
 ## Deploy with Zephyr
@@ -87,6 +88,17 @@ To ship a new remote version: change the remote (for example bump `RELEASE` in `
 
 The URLs change with every deploy. A tag URL (dashboard, DevOps, Tags) stays the same while the tag moves between versions.
 
+### Deploy from CI
+
+`.github/workflows/zephyr.yml` runs the same two commands on GitHub Actions, started by hand (Actions, zephyr, Run workflow; choose `all`, `remote` or `host`). The remote job always runs before the host job. The host job fails if the deploy did not print `Resolved remotes:`.
+
+One-time setup, by the repo owner:
+
+1. In the Zephyr dashboard, create a CI token.
+2. In GitHub, Settings, Environments, create an environment named `zephyr`, add yourself as a required reviewer, and add the token as the environment secret `ZE_CI_TOKEN`.
+
+Each job then waits for that approval before it deploys. The plugin reads `ZE_CI_TOKEN` and takes the deploy's author from the GitHub actor (read in `zephyr-agent` 1.8.0).
+
 ## Change it
 
 - **Add an exposed module:** create `apps/remote/src/<Name>.tsx` with a default export, add `"./<Name>": "./src/<Name>.tsx"` to `exposes` in `apps/remote/src/federation.ts`, declare `remote/<Name>` in `apps/host/src/remote.d.ts`, and `lazy(() => import("remote/<Name>"))` in the host. `pnpm check` fails if an exposed file has no default component, or if the host declares a module the remote does not expose.
@@ -114,7 +126,8 @@ Used before: React and TypeScript daily; Webpack early on, then mostly esbuild; 
 
 - The docs say rollback goes only to the immediately previous version, and describe it in the dashboard only. The tag history showed a Redeploy button on every older version; I only tried the previous one. The dashboard calls the button "Redeploy" where the docs say "Rollback".
 - A deploy that cannot resolve the remote still succeeds (the host then shows the error, because of its placeholder URL). Check that `pnpm zephyr:host` prints `Resolved remotes:`.
-- Deploys are manual: CI does not deploy. Zephyr documents a CI token (`ZE_CI_TOKEN`); it is not set up here.
+- Deploys are manual. The CI deploy workflow is started by hand, does not run the checks itself (start it on a commit whose `ci` run is green), and has not been run yet.
+- When the host job fails its `Resolved remotes:` check, the host version is already uploaded; the failure only makes it visible.
 - Whether a brand-new remote, unknown to an already-built host, can be loaded without rebuilding the host is untested.
 - Not tested in a browser by automation: the checks cover config and components, and the federation itself was checked by hand.
 - The types in `apps/host/src/remote.d.ts` mirror the remote's by hand.
@@ -123,5 +136,5 @@ Used before: React and TypeScript daily; Webpack early on, then mostly esbuild; 
 
 - A second remote, to show build order and the difference between a new version and a new remote.
 - An Nx workspace like Zephyr's recipe, once there are enough apps to need it.
-- CI deploy with a Zephyr CI token, and a browser test of the host with the remote down.
+- A browser test of the host with the remote down.
 - Generate the remote's types (`dts`) instead of mirroring them by hand.
