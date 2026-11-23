@@ -10,6 +10,13 @@ The remote shares two UI components (a status badge and a flight status card, wi
 - To run locally or run the checks: nothing else. No account, no network service, no environment variables.
 - To deploy: a free Zephyr account, and a git repo with a branch, a commit and an `origin` remote (Zephyr derives the app name from them).
 
+## Live demo
+
+- Host: https://t-latest-host-mf-zephyr-demo-geomus-ze.zephyrcloud.app/
+- Remote: https://t-latest-remote-mf-zephyr-demo-geomus-ze.zephyrcloud.app/
+
+Both are tag URLs: they stay the same while the tag moves to a newer deploy.
+
 ## Quick start
 
 ```sh
