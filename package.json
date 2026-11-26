@@ -16,7 +16,7 @@
     "lint": "biome lint .",
     "format": "biome format --write .",
     "test": "vitest run",
-    "check": "biome check . && pnpm typecheck && pnpm test && pnpm build",
+    "check": "biome check . && pnpm --filter remote build && pnpm typecheck && pnpm test && pnpm build",
     "hooks:install": "git config core.hooksPath .githooks"
   },
   "devDependencies": {

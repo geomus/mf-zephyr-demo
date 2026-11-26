@@ -39,6 +39,10 @@ jobs:
       - name: Lint
         if: matrix.task == 'lint'
         run: pnpm exec biome ci .
+      # The host's types for the remote come from the remote's build.
+      - name: Build remote types
+        if: matrix.task == 'typecheck'
+        run: pnpm --filter remote build
       - name: Typecheck
         if: matrix.task == 'typecheck'
         run: pnpm typecheck
