@@ -15,6 +15,16 @@ export const remoteFederation = {
     react: { singleton: true },
     "react-dom": { singleton: true },
   },
-  // shortcut: no generated remote types, the host declares the modules it uses; enable dts when the API grows.
-  dts: false,
+  dts: {
+    generateTypes: {
+      tsConfigPath: "../../tsconfig.json",
+      // Outside dist/ so output.clean keeps the unzipped types the host's tsconfig `paths` reads.
+      outputDir: "types",
+      deleteTypesFolder: false,
+    },
+    // The host reads the types from disk; downloading them needs the remote served over HTTP.
+    consumeTypes: false,
+  },
+  // Keeps the dev bundle free of the types broker and live-reload entry dts would otherwise add.
+  dev: false,
 } satisfies FederationOptions;

@@ -39,7 +39,8 @@ export default async (env: CliEnv) => {
       ],
     },
     // "auto" resolves chunk URLs from wherever remoteEntry.js was served, local or Zephyr.
-    output: { publicPath: "auto", uniqueName: "remote", clean: true },
+    // `path` is set because without it the dts plugin emits the types zip to dist/dist/, not where the manifest says.
+    output: { path: "dist", publicPath: "auto", uniqueName: "remote", clean: true },
     devServer: { port: 3001, headers: { "Access-Control-Allow-Origin": "*" } },
     plugins: [
       new HtmlRspackPlugin({ templateContent: html }),
