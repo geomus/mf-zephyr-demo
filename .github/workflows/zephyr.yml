@@ -2,6 +2,10 @@ name: zephyr
 
 # Deploys through Zephyr. Manual only, and each job waits for approval in the `zephyr` environment.
 on:
+  # shortcut: temporary, workflow_dispatch needs the file on main; remove before merging.
+  # A push has no inputs, so it deploys both apps; reject the host job's approval to deploy only the remote.
+  push:
+    branches: [feat/ci-deploy]
   workflow_dispatch:
     inputs:
       target:
