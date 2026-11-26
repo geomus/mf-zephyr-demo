@@ -94,10 +94,13 @@ The URLs change with every deploy. A tag URL (dashboard, DevOps, Tags) stays the
 
 One-time setup, by the repo owner:
 
-1. In the Zephyr dashboard, create a CI token.
-2. In GitHub, Settings, Environments, create an environment named `zephyr`, add yourself as a required reviewer, and add the token as the environment secret `ZE_CI_TOKEN`.
+1. In Zephyr, link the GitHub account that starts the workflow to your Zephyr user. Without it the token cannot be exchanged (`ZE10037`, "Link this CI actor's Git provider account in Zephyr Cloud").
+2. In the Zephyr dashboard, create a CI token.
+3. In GitHub, Settings, Environments, create an environment named `zephyr`, add yourself as a required reviewer, and add the token as the environment secret `ZE_CI_TOKEN`.
 
 Each job then waits for that approval before it deploys. The plugin reads `ZE_CI_TOKEN` and takes the deploy's author from the GitHub actor (read in `zephyr-agent` 1.8.0).
+
+`workflow_dispatch` only works once the workflow file is on the default branch. Before that, the workflow was run from its branch with a temporary `push` trigger: a deploy from a branch other than `main` gets its own automatic tag (`web_<branch>_<user>`, condition "is CI") and does not move `latest`.
 
 ## Change it
 
@@ -126,7 +129,7 @@ Used before: React and TypeScript daily; Webpack early on, then mostly esbuild; 
 
 - The docs say rollback goes only to the immediately previous version, and describe it in the dashboard only. The tag history showed a Redeploy button on every older version; I only tried the previous one. The dashboard calls the button "Redeploy" where the docs say "Rollback".
 - A deploy that cannot resolve the remote still succeeds (the host then shows the error, because of its placeholder URL). Check that `pnpm zephyr:host` prints `Resolved remotes:`.
-- Deploys are manual. The CI deploy workflow is started by hand, does not run the checks itself (start it on a commit whose `ci` run is green), and has not been run yet.
+- Deploys are manual. The CI deploy workflow is started by hand, does not run the checks itself (start it on a commit whose `ci` run is green), and was run only from its branch: whether a CI deploy from `main` moves `latest` is untested.
 - When the host job fails its `Resolved remotes:` check, the host version is already uploaded; the failure only makes it visible.
 - Whether a brand-new remote, unknown to an already-built host, can be loaded without rebuilding the host is untested.
 - Not tested in a browser by automation: the checks cover config and components, and the federation itself was checked by hand.
